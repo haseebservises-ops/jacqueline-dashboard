@@ -1,8 +1,6 @@
 :root {
   --primary-color: #FF4500;
-  /* Example Orange from logo */
   --secondary-color: #1A1A2E;
-  /* Dark Blue/Black from logo text */
   --background-color: #F5F5F7;
   --card-bg: #FFFFFF;
   --text-color: #333333;
@@ -10,6 +8,15 @@
   --border-radius: 12px;
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body.dark-mode {
+  --secondary-color: #E2E2E2;
+  --background-color: #121212;
+  --card-bg: #1E1E1E;
+  --text-color: #E2E2E2;
+  --text-muted: #A0A0A0;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
 }
 
 body {

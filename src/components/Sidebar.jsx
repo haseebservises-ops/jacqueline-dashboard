@@ -1,7 +1,19 @@
-import React from 'react';
-import { LayoutDashboard, Users, ShoppingCart, UserMinus, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { LayoutDashboard, Users, ShoppingCart, UserMinus, ChevronLeft, ChevronRight, Moon, Sun } from 'lucide-react';
 
 const Sidebar = ({ activeTab, onTabChange, isCollapsed, toggleSidebar, isMobile }) => {
+    const [isDarkMode, setIsDarkMode] = useState(false);
+
+    useEffect(() => {
+        if (isDarkMode) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+    }, [isDarkMode]);
+
+    const toggleTheme = () => setIsDarkMode(!isDarkMode);
+
     const menuItems = [
         { id: 'overview', label: 'Overview', icon: LayoutDashboard },
         { id: 'framework', label: 'Framework', icon: Users },
@@ -122,6 +134,29 @@ const Sidebar = ({ activeTab, onTabChange, isCollapsed, toggleSidebar, isMobile 
                         );
                     })}
                 </nav>
+
+                <div style={{ marginTop: 'auto', padding: '1rem', display: 'flex', justifyContent: isCollapsed ? 'center' : 'flex-start' }}>
+                    <button
+                        onClick={toggleTheme}
+                        style={{
+                            background: 'transparent',
+                            border: '1px solid var(--text-muted)',
+                            borderRadius: '8px',
+                            padding: '0.5rem',
+                            cursor: 'pointer',
+                            color: 'var(--text-color)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            width: isCollapsed ? 'auto' : '100%',
+                            justifyContent: 'center'
+                        }}
+                        title="Toggle Dark Mode"
+                    >
+                        {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+                        {!isCollapsed && <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>}
+                    </button>
+                </div>
             </div>
         </>
     );

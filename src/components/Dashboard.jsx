@@ -4,7 +4,7 @@ import DateFilter from './DateFilter';
 import Sidebar from './Sidebar';
 import Overview from './Overview';
 import Transactions from './Transactions';
-import { RefreshCw, Menu } from 'lucide-react';
+import { RefreshCw, Menu, Download } from 'lucide-react';
 
 const Dashboard = () => {
     const [data, setData] = useState({ framework: [], checkout: [], openLeads: [] });
@@ -57,6 +57,42 @@ const Dashboard = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    const handleExport = () => {
+        const dataToExport = getActiveData();
+        if (dataToExport.length === 0) {
+            alert('No data to export!');
+            return;
+        }
+
+        // Convert to CSV
+        // Headers: keys of first object (excluding internal things if any, but our data is clean)
+        // Let's manually define headers for cleanliness
+        const headers = ['Date', 'Name', 'Email', 'Offer', 'Amount'];
+
+        const csvRows = [headers.join(',')];
+
+        for (const row of dataToExport) {
+            const values = headers.map(header => {
+                const val = row[header] || '';
+                // Escape quotes
+                const escaped = ('' + val).replace(/"/g, '""');
+                return `"${escaped}"`;
+            });
+            csvRows.push(values.join(','));
+        }
+
+        const csvString = csvRows.join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('hidden', '');
+        a.setAttribute('href', url);
+        a.setAttribute('download', `${activeTab}_export_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
+
     const toggleSidebar = () => {
         setIsSidebarCollapsed(!isSidebarCollapsed);
     };
@@ -86,10 +122,13 @@ const Dashboard = () => {
         const totalPurchases = filteredCheckout.length;
         const totalRevenue = filteredCheckout.reduce((sum, item) => sum + item.Amount, 0);
 
+        const conversionRate = totalFillups > 0 ? ((totalPurchases / totalFillups) * 100).toFixed(1) : 0;
+
         return {
             totalFillups,
             totalPurchases,
-            totalRevenue
+            totalRevenue,
+            conversionRate
         };
     }, [filteredFramework, filteredCheckout]);
 
@@ -206,6 +245,28 @@ const Dashboard = () => {
                     </div>
                     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', width: isMobile ? '100%' : 'auto', flexDirection: isMobile ? 'column' : 'row' }}>
                         <div style={{ display: 'flex', gap: '1rem', width: '100%' }}>
+                            <button
+                                onClick={handleExport}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '0.5rem',
+                                    padding: '0.5rem 1rem',
+                                    background: 'var(--card-bg)',
+                                    border: '1px solid #ddd',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    color: 'var(--text-color)',
+                                    fontSize: '0.9rem',
+                                    fontWeight: 500,
+                                    boxShadow: 'var(--shadow)',
+                                    flex: isMobile ? 1 : 'initial'
+                                }}
+                            >
+                                <Download size={16} />
+                                {isMobile ? 'Export' : 'Export CSV'}
+                            </button>
                             <button
                                 onClick={loadData}
                                 disabled={isRefreshing}

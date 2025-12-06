@@ -1,7 +1,7 @@
 import React from 'react';
 import StatsCard from './StatsCard';
 import SalesChart from './SalesChart';
-import { Users, ShoppingBag, DollarSign } from 'lucide-react';
+import { Users, ShoppingBag, DollarSign, Percent } from 'lucide-react';
 
 const Overview = ({ stats, chartData }) => {
     return (
@@ -18,6 +18,12 @@ const Overview = ({ stats, chartData }) => {
                     value={stats.totalPurchases}
                     icon={ShoppingBag}
                     color="#10B981"
+                />
+                <StatsCard
+                    title="Conversion Rate"
+                    value={`${stats.conversionRate}%`}
+                    icon={Percent}
+                    color="#8B5CF6"
                 />
                 <StatsCard
                     title="Total Revenue"
