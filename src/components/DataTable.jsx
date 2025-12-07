@@ -1,23 +1,50 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronUp, ChevronDown, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
-const DataTable = ({ data, showAmount }) => {
+const DataTable = ({ data, showAmount, columns }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 10;
 
-    // 1. Filter
-    const filteredData = useMemo(() => {
-        return data.filter(item => {
-            const term = searchTerm.toLowerCase();
-            const nameMatch = item.Name?.toLowerCase().includes(term);
-            const emailMatch = item.Email?.toLowerCase().includes(term);
-            return nameMatch || emailMatch;
-        });
-    }, [data, searchTerm]);
+    // Define Default Columns if no 'columns' prop is passed
+    const defaultColumns = useMemo(() => [
+        { header: 'Date', key: 'DateObj', label: 'Date', render: (row) => row.Date },
+        { header: 'Name', key: 'Name', label: 'Name' },
+        { header: 'Email', key: 'Email', label: 'Email' },
+        {
+            header: 'Offer', key: 'Offer', label: 'Offer', render: (row) => (
+                <span style={{
+                    background: '#FFF0E6',
+                    color: 'var(--primary-color)',
+                    padding: '0.2rem 0.6rem',
+                    borderRadius: '20px',
+                    fontSize: '0.8rem',
+                    fontWeight: 500
+                }}>
+                    {row.Offer}
+                </span>
+            )
+        },
+        ...(showAmount ? [{ header: 'Amount', key: 'Amount', label: 'Amount', align: 'right', render: (row) => row.Amount > 0 ? `$${row.Amount}` : '-' }] : [])
+    ], [showAmount]);
 
-    // 2. Sort
+    const activeColumns = columns || defaultColumns;
+
+    // 1. Filter (Generic Search across all columns that are strings)
+    const filteredData = useMemo(() => {
+        if (!searchTerm) return data;
+        const term = searchTerm.toLowerCase();
+        return data.filter(item => {
+            // Search all keys in the item that match active columns
+            return activeColumns.some(col => {
+                const value = item[col.key];
+                return value && value.toString().toLowerCase().includes(term);
+            });
+        });
+    }, [data, searchTerm, activeColumns]);
+
+    // 2. Sort (Generic Sort)
     const sortedData = useMemo(() => {
         let sortableItems = [...filteredData];
         if (sortConfig.key !== null) {
@@ -25,15 +52,17 @@ const DataTable = ({ data, showAmount }) => {
                 let aValue = a[sortConfig.key];
                 let bValue = b[sortConfig.key];
 
-                // Handle Amount specifically as it's a number
-                if (sortConfig.key === 'Amount') {
-                    // aValue and bValue are already numbers based on dataService, but safer to check
-                } else if (sortConfig.key === 'DateObj') {
-                    // Use the Date object for sorting if available
+                // Handle DateObj special case (if it exists in dataService)
+                if (sortConfig.key === 'DateObj' && a.DateObj && b.DateObj) {
                     aValue = a.DateObj;
                     bValue = b.DateObj;
+                }
+
+                // Handle numbers
+                if (typeof aValue === 'number' && typeof bValue === 'number') {
+                    // keep as number
                 } else {
-                    // String comparison for others
+                    // String fallback
                     aValue = aValue ? aValue.toString().toLowerCase() : '';
                     bValue = bValue ? bValue.toString().toLowerCase() : '';
                 }
@@ -46,10 +75,6 @@ const DataTable = ({ data, showAmount }) => {
                 }
                 return 0;
             });
-        } else {
-            // Default sort by Date descending (newest first) if no sort selected
-            // Assuming data comes in some order, but let's enforce date desc by default if needed.
-            // For now, let's keep array order if no sort.
         }
         return sortableItems;
     }, [filteredData, sortConfig]);
@@ -73,20 +98,20 @@ const DataTable = ({ data, showAmount }) => {
 
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
-        setCurrentPage(1); // Reset to page 1 on search
+        setCurrentPage(1);
     };
 
-    const getSortIcon = (name) => {
-        if (sortConfig.key !== name) return <div style={{ width: '16px' }}></div>; // Placeholder for alignment
+    const getSortIcon = (key) => {
+        if (sortConfig.key !== key) return <div style={{ width: '16px' }}></div>;
         return sortConfig.direction === 'ascending' ? <ChevronUp size={16} /> : <ChevronDown size={16} />;
     };
 
-    // Helper for table headers to make them clickable
-    const Th = ({ label, sortKey, align = 'left' }) => (
+    // Helper for table headers
+    const Th = ({ col }) => (
         <th
-            onClick={() => requestSort(sortKey)}
+            onClick={() => requestSort(col.key)}
             style={{
-                textAlign: align,
+                textAlign: col.align || 'left',
                 padding: '1rem',
                 color: 'var(--text-muted)',
                 fontSize: '0.9rem',
@@ -94,9 +119,9 @@ const DataTable = ({ data, showAmount }) => {
                 userSelect: 'none'
             }}
         >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: align === 'right' ? 'flex-end' : 'flex-start', gap: '0.5rem' }}>
-                {label}
-                {getSortIcon(sortKey)}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: col.align === 'right' ? 'flex-end' : 'flex-start', gap: '0.5rem' }}>
+                {col.label || col.header}
+                {getSortIcon(col.key)}
             </div>
         </th>
     );
@@ -117,7 +142,7 @@ const DataTable = ({ data, showAmount }) => {
                     <Search size={18} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                     <input
                         type="text"
-                        placeholder="Search name or email..."
+                        placeholder="Search..."
                         value={searchTerm}
                         onChange={handleSearch}
                         style={{
@@ -132,47 +157,29 @@ const DataTable = ({ data, showAmount }) => {
                 </div>
             </div>
 
-            {/* Table wrapper for horizontal scroll */}
+            {/* Table wrapper */}
             <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
                     <thead>
                         <tr style={{ borderBottom: '2px solid #f0f0f0' }}>
-                            {/* Using DateObj for sorting but displaying string Date */}
-                            <Th label="Date" sortKey="DateObj" />
-                            <Th label="Name" sortKey="Name" />
-                            <Th label="Email" sortKey="Email" />
-                            <Th label="Offer" sortKey="Offer" />
-                            {showAmount && <Th label="Amount" sortKey="Amount" align="right" />}
+                            {activeColumns.map((col, idx) => (
+                                <Th key={idx} col={col} />
+                            ))}
                         </tr>
                     </thead>
                     <tbody>
-                        {currentRows.map((row, index) => (
-                            <tr key={index} style={{ borderBottom: '1px solid #f9f9f9' }}>
-                                <td style={{ padding: '1rem', fontSize: '0.9rem' }}>{row.Date}</td>
-                                <td style={{ padding: '1rem', fontWeight: 500 }}>{row.Name}</td>
-                                <td style={{ padding: '1rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{row.Email}</td>
-                                <td style={{ padding: '1rem', fontSize: '0.9rem' }}>
-                                    <span style={{
-                                        background: '#FFF0E6',
-                                        color: 'var(--primary-color)',
-                                        padding: '0.2rem 0.6rem',
-                                        borderRadius: '20px',
-                                        fontSize: '0.8rem',
-                                        fontWeight: 500
-                                    }}>
-                                        {row.Offer}
-                                    </span>
-                                </td>
-                                {showAmount && (
-                                    <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 500 }}>
-                                        {row.Amount > 0 ? `$${row.Amount}` : '-'}
+                        {currentRows.map((row, rIdx) => (
+                            <tr key={rIdx} style={{ borderBottom: '1px solid #f9f9f9' }}>
+                                {activeColumns.map((col, cIdx) => (
+                                    <td key={cIdx} style={{ padding: '1rem', fontSize: '0.9rem', textAlign: col.align || 'left' }}>
+                                        {col.render ? col.render(row) : row[col.key]}
                                     </td>
-                                )}
+                                ))}
                             </tr>
                         ))}
                         {currentRows.length === 0 && (
                             <tr>
-                                <td colSpan={showAmount ? 5 : 4} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                                <td colSpan={activeColumns.length} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
                                     {searchTerm ? 'No results match your search.' : 'No data available.'}
                                 </td>
                             </tr>

@@ -3,12 +3,18 @@ import { fetchDashboardData } from '../services/dataService';
 import DateFilter from './DateFilter';
 import Sidebar from './Sidebar';
 import Overview from './Overview';
+import SkeletonLoader from './SkeletonLoader';
 import Transactions from './Transactions';
+import DataTable from './DataTable';
 import { RefreshCw, Menu, Download } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../supabaseClient';
 
 const Dashboard = () => {
+    const { user } = useAuth();
     const [data, setData] = useState({ framework: [], checkout: [], openLeads: [] });
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [activeTab, setActiveTab] = useState('overview');
@@ -18,26 +24,81 @@ const Dashboard = () => {
     // UI State
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [clientConfig, setClientConfig] = useState(null);
 
     const loadData = useCallback(async () => {
+        if (!user) return;
         setIsRefreshing(true);
+        setError(null);
         try {
-            const result = await fetchDashboardData();
+            // 1. Get Client Config from Supabase
+            // CHANGED: We now lookup by Email so we can pre-provision clients
+            const { data: clientData, error: clientError } = await supabase
+                .from('clients')
+                .select('spreadsheet_id, config')
+                .eq('email', user.email)
+                .single();
+
+
+            if (clientError || !clientData) {
+                if (user?.email === 'haseebservises@gmail.com') {
+                    // Fallback for Admin So they don't get locked out
+                    console.log("Admin fallback: No config found, using default.");
+                    setClientConfig({
+                        branding: { primaryColor: '#ff4500', logoUrl: '/src/assets/logo.png' },
+                        features: { showOverview: true, showFramework: true, showCheckout: true, showOpenLeads: true, allowExport: true }
+                    });
+                    // Set empty data or default data
+                    setData({ framework: [], checkout: [], openLeads: [] });
+                    setLastUpdated(new Date());
+                    setLoading(false);
+                    setIsRefreshing(false);
+                    return;
+                }
+                throw new Error('No configuration found for this user.');
+            }
+
+            if (!clientData?.spreadsheet_id) throw new Error('No Spreadsheet ID linked to this account.');
+
+            // Force Admin Branding Override if it IS the admin, even if data exists
+            if (user?.email === 'haseebservises@gmail.com') {
+                clientData.config.branding = {
+                    primaryColor: '#ff4500',
+                    logoUrl: '/src/assets/logo.png'
+                };
+            }
+
+            // Store config for dynamic rendering
+            setClientConfig(clientData.config);
+
+            // 2. Fetch Data from that Sheet
+            const result = await fetchDashboardData(clientData.spreadsheet_id);
             setData(result);
             setLastUpdated(new Date());
-        } catch (error) {
-            console.error("Failed to load data", error);
+        } catch (err) {
+            console.error("Failed to load data", err);
+            setError(err.message);
         } finally {
             setLoading(false);
             setIsRefreshing(false);
         }
-    }, []);
+    }, [user]);
 
     useEffect(() => {
-        loadData();
-        const interval = setInterval(loadData, 30000); // Refresh every 30 seconds
-        return () => clearInterval(interval);
-    }, [loadData]);
+        if (user) {
+            loadData();
+        }
+    }, [user, loadData]);
+
+    // Apply Custom Branding (Primary Color)
+    useEffect(() => {
+        if (clientConfig?.branding?.primaryColor) {
+            document.documentElement.style.setProperty('--primary-color', clientConfig.branding.primaryColor);
+        } else {
+            // Revert to default if no config (optional, or keeping previous value)
+            document.documentElement.style.removeProperty('--primary-color');
+        }
+    }, [clientConfig]);
 
     // Handle window resize for mobile detection
     useEffect(() => {
@@ -57,17 +118,25 @@ const Dashboard = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    const getActiveData = useCallback(() => {
+        switch (activeTab) {
+            case 'framework': return data.framework;
+            case 'checkout': return data.checkout;
+            case 'openLeads': return data.openLeads;
+            default: return [];
+        }
+    }, [activeTab, data]);
+
     const handleExport = () => {
         const dataToExport = getActiveData();
-        if (dataToExport.length === 0) {
+        if (!dataToExport || dataToExport.length === 0) {
             alert('No data to export!');
             return;
         }
 
         // Convert to CSV
-        // Headers: keys of first object (excluding internal things if any, but our data is clean)
-        // Let's manually define headers for cleanliness
-        const headers = ['Date', 'Name', 'Email', 'Offer', 'Amount'];
+        // Take headers from first row keys
+        const headers = Object.keys(dataToExport[0]);
 
         const csvRows = [headers.join(',')];
 
@@ -146,14 +215,6 @@ const Dashboard = () => {
         return Object.values(grouped).sort((a, b) => new Date(a.date) - new Date(b.date));
     }, [filteredCheckout]);
 
-    const getActiveData = () => {
-        switch (activeTab) {
-            case 'framework': return filteredFramework;
-            case 'checkout': return filteredCheckout;
-            case 'openLeads': return filteredOpenLeads;
-            default: return [];
-        }
-    };
 
     const getTabTitle = () => {
         switch (activeTab) {
@@ -176,7 +237,32 @@ const Dashboard = () => {
     };
 
     if (loading && data.framework.length === 0) {
-        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading...</div>;
+        return (
+            <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+                    <SkeletonLoader width="240px" height="120px" borderRadius="12px" />
+                    <SkeletonLoader width="240px" height="120px" borderRadius="12px" />
+                    <SkeletonLoader width="240px" height="120px" borderRadius="12px" />
+                    <SkeletonLoader width="240px" height="120px" borderRadius="12px" />
+                </div>
+                <SkeletonLoader width="100%" height="400px" borderRadius="12px" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', gap: '1rem', background: 'var(--background-color)', color: 'var(--text-color)' }}>
+                <h3>Configuration Error</h3>
+                <p>{error}</p>
+                <button
+                    onClick={() => window.location.reload()}
+                    style={{ padding: '0.5rem 1rem', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                >
+                    Retry
+                </button>
+            </div>
+        );
     }
 
     const mainContentMargin = isMobile ? '0' : (isSidebarCollapsed ? '80px' : '280px');
@@ -213,6 +299,8 @@ const Dashboard = () => {
                 isCollapsed={isSidebarCollapsed}
                 toggleSidebar={toggleSidebar}
                 isMobile={isMobile}
+                branding={clientConfig?.branding}
+                features={clientConfig?.features}
             />
 
             <div style={{
@@ -246,7 +334,7 @@ const Dashboard = () => {
                     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', width: isMobile ? '100%' : 'auto', flexDirection: isMobile ? 'column' : 'row' }}>
                         <div style={{ display: 'flex', gap: '1rem', width: '100%' }}>
                             <button
-                                onClick={handleExport}
+                                onClick={loadData}
                                 style={{
                                     display: 'flex',
                                     alignItems: 'center',
@@ -259,19 +347,6 @@ const Dashboard = () => {
                                     cursor: 'pointer',
                                     color: 'var(--text-color)',
                                     fontSize: '0.9rem',
-                                    fontWeight: 500,
-                                    boxShadow: 'var(--shadow)',
-                                    flex: isMobile ? 1 : 'initial'
-                                }}
-                            >
-                                <Download size={16} />
-                                {isMobile ? 'Export' : 'Export CSV'}
-                            </button>
-                            <button
-                                onClick={loadData}
-                                disabled={isRefreshing}
-                                style={{
-                                    display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     gap: '0.5rem',
@@ -284,12 +359,39 @@ const Dashboard = () => {
                                     fontSize: '0.9rem',
                                     fontWeight: 500,
                                     boxShadow: 'var(--shadow)',
-                                    flex: isMobile ? 1 : 'initial'
+                                    flex: isMobile ? 1 : 'initial',
+                                    whiteSpace: 'nowrap'
                                 }}
                             >
                                 <RefreshCw size={16} className={isRefreshing ? 'spin' : ''} style={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }} />
                                 {isRefreshing ? 'Refreshing...' : 'Refresh'}
                             </button>
+
+                            {/* Export Button - Toggleable */}
+                            {clientConfig?.features?.allowExport !== false && (
+                                <button
+                                    onClick={handleExport}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '0.5rem',
+                                        padding: '0.5rem 1rem',
+                                        background: 'var(--card-bg)',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        color: 'var(--text-color)',
+                                        fontSize: '0.9rem',
+                                        boxShadow: 'var(--shadow)',
+                                        flex: isMobile ? 1 : 'initial',
+                                        whiteSpace: 'nowrap'
+                                    }}
+                                >
+                                    <Download size={16} />
+                                    Export CSV
+                                </button>
+                            )}
                         </div>
 
                         <div style={{ width: isMobile ? '100%' : 'auto' }}>
@@ -303,11 +405,28 @@ const Dashboard = () => {
                     </div>
                 </header>
 
-                {activeTab === 'overview' ? (
-                    <Overview stats={stats} chartData={chartData} />
-                ) : (
-                    <Transactions data={getActiveData()} showAmount={activeTab === 'checkout'} />
-                )}
+                <main>
+                    {activeTab === 'overview' && <Overview stats={stats} chartData={chartData} config={clientConfig} />}
+                    {activeTab === 'framework' && (
+                        <DataTable
+                            data={filteredFramework}
+                            columns={clientConfig?.tables?.framework?.columns}
+                        />
+                    )}
+                    {activeTab === 'checkout' && (
+                        <DataTable
+                            data={filteredCheckout}
+                            showAmount={true}
+                            columns={clientConfig?.tables?.transactions?.columns}
+                        />
+                    )}
+                    {activeTab === 'openLeads' && (
+                        <DataTable
+                            data={filteredOpenLeads}
+                            columns={clientConfig?.tables?.openLeads?.columns}
+                        />
+                    )}
+                </main>
             </div>
             <style>{`
         @keyframes spin {

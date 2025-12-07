@@ -1,10 +1,40 @@
 import Papa from 'papaparse';
 
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGW-efXuJJTZf2svEGhMFfCxkfF8kVTq0uN81hJg8drJwk2pxvYvegC80609d6gtlM6UFvF_iqq9n3/pub?gid=0&single=true&output=csv';
+const BASE_URL = 'https://docs.google.com/spreadsheets/';
+const CSV_SUFFIX = '/pub?gid=0&single=true&output=csv';
 
-export const fetchDashboardData = async () => {
-  const timestamp = new Date().getTime();
-  const urlWithCacheBuster = `${CSV_URL}&t=${timestamp}`;
+export const fetchDashboardData = async (sheetId) => {
+  if (!sheetId) throw new Error("No Sheet ID provided");
+
+  // Helper to extract ID if user pasted full URL
+  let cleanId = sheetId;
+  if (sheetId.includes('/spreadsheets/d/')) {
+    const matches = sheetId.match(/\/d\/([a-zA-Z0-9-_]+)/);
+    if (matches && matches[1]) {
+      cleanId = matches[1];
+    } else if (sheetId.includes('/e/')) {
+      // Handle published to web links
+      const matches = sheetId.match(/\/d\/e\/([a-zA-Z0-9-_]+)/);
+      if (matches && matches[1]) cleanId = '2PACX-' + matches[1]; // 2PACX IDs are special, usually handled differently. 
+      // Actually, for 2PACX, the ID is usually the whole string after /e/.
+      // Let's rely on the simple check below matching the start.
+    }
+  }
+  // simpler extraction for published links which are tricky
+  if (sheetId.includes('2PACX')) {
+    // If it's a full URL with 2PACX
+    if (sheetId.includes('/e/')) {
+      const parts = sheetId.split('/e/');
+      if (parts[1]) {
+        cleanId = parts[1].split('/')[0];
+      }
+    }
+  }
+
+  // Handle "Published to Web" IDs (start with 2PACX) vs Standard IDs
+  const type = cleanId.startsWith('2PACX') ? 'd/e/' : 'd/';
+  const urlWithCacheBuster = `${BASE_URL}${type}${cleanId}${CSV_SUFFIX}&t=${new Date().getTime()}`;
+
   return new Promise((resolve, reject) => {
     Papa.parse(urlWithCacheBuster, {
       download: true,
