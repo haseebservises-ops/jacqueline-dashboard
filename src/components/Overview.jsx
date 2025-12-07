@@ -75,13 +75,15 @@ const Overview = ({ stats, chartData, config }) => {
 
                     return (
                         <motion.div key={index} variants={item} style={{ flex: '1 1 200px' }}>
-                            <Component
-                                title={widget.props.title}
-                                value={value !== undefined ? value : 0} // Safely access value
-                                icon={Icon}
-                                color={widget.props.color}
-                                isCurrency={widget.props.isCurrency}
-                            />
+                            <div className="glass-card" style={{ height: '100%', padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                <Component
+                                    title={widget.props.title}
+                                    value={value !== undefined ? value : 0} // Safely access value
+                                    icon={Icon}
+                                    color={widget.props.color}
+                                    isCurrency={widget.props.isCurrency}
+                                />
+                            </div>
                         </motion.div>
                     );
                 })}
@@ -91,7 +93,9 @@ const Overview = ({ stats, chartData, config }) => {
                 const Component = WIDGET_REGISTRY[widget.type];
                 return (
                     <motion.div key={index} variants={item}>
-                        <Component data={chartData} title={widget.props.title} />
+                        <div className="glass-card">
+                            <Component data={chartData} title={widget.props.title} />
+                        </div>
                     </motion.div>
                 );
             })}

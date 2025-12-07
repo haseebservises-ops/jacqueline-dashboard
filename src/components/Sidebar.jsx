@@ -3,11 +3,10 @@ import { LayoutDashboard, Users, ShoppingCart, UserMinus, ChevronLeft, ChevronRi
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-const Sidebar = ({ activeTab, onTabChange, isCollapsed, toggleSidebar, isMobile, branding, features }) => {
+const Sidebar = ({ activeTab, onTabChange, isCollapsed, toggleSidebar, isMobile, branding, features, tabs }) => {
     const { user, signOut } = useAuth();
     const navigate = useNavigate();
 
-    // Add navigation logic to redirect after logout (optional since auth state change usually triggers re-render/redirect)
     const logout = async () => {
         try {
             await signOut();
@@ -16,7 +15,7 @@ const Sidebar = ({ activeTab, onTabChange, isCollapsed, toggleSidebar, isMobile,
         }
     };
 
-    const [isDarkMode, setIsDarkMode] = useState(false);
+    const [isDarkMode, setIsDarkMode] = useState(true);
 
     useEffect(() => {
         if (isDarkMode) {
@@ -29,12 +28,8 @@ const Sidebar = ({ activeTab, onTabChange, isCollapsed, toggleSidebar, isMobile,
     const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
     const [isClientView, setIsClientView] = useState(false);
-
-    // Default to TRUE if features prop is missing (backward compatibility)
-    // BUT if user is Admin, we only show these if isClientView is TRUE
     const isAdmin = user?.email === 'haseebservises@gmail.com';
 
-    // For normal users, respect flags. For Admin, respect flags ONLY if isClientView is true.
     const shouldShow = (featureFlag) => {
         if (isAdmin && !isClientView) return false;
         return features?.[featureFlag] !== false;
@@ -47,10 +42,24 @@ const Sidebar = ({ activeTab, onTabChange, isCollapsed, toggleSidebar, isMobile,
 
     const menuItems = [];
 
+    // Always show Overview? Or configurable? Assuming yes for now.
     if (showOverview) menuItems.push({ id: 'overview', label: 'Overview', icon: LayoutDashboard });
-    if (showFramework) menuItems.push({ id: 'framework', label: 'Framework', icon: Users });
-    if (showCheckout) menuItems.push({ id: 'checkout', label: 'Framework Checkout', icon: ShoppingCart });
-    if (showOpenLeads) menuItems.push({ id: 'openLeads', label: 'Framework Open Leads', icon: UserMinus });
+
+    // Universal Mode
+    if (tabs && Array.isArray(tabs) && tabs.length > 0) {
+        tabs.forEach(tab => {
+            menuItems.push({
+                id: tab.id,
+                label: tab.label || tab.name,
+                icon: Users // Generic icon for now, or add ability to pick icon in Admin
+            });
+        });
+    } else {
+        // Legacy Mode (Fallback)
+        if (showFramework) menuItems.push({ id: 'framework', label: 'Framework', icon: Users });
+        if (showCheckout) menuItems.push({ id: 'checkout', label: 'Framework Checkout', icon: ShoppingCart });
+        if (showOpenLeads) menuItems.push({ id: 'openLeads', label: 'Framework Open Leads', icon: UserMinus });
+    }
 
     if (isAdmin) {
         menuItems.push({ id: 'admin', label: 'Admin Panel', icon: Shield });
@@ -71,76 +80,98 @@ const Sidebar = ({ activeTab, onTabChange, isCollapsed, toggleSidebar, isMobile,
                 className="glass-sidebar"
                 style={{
                     width: sidebarWidth,
-                    backgroundColor: 'var(--card-bg)',
                     height: '100vh',
                     position: 'fixed',
                     left: 0,
                     top: 0,
-                    borderRight: '1px solid #eee',
+                    // Conditional Background: Dark Mode -> Gradient, Light Mode -> White/Glass
+                    background: isDarkMode
+                        ? 'linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.8) 100%)'
+                        : 'rgba(255, 255, 255, 0.95)',
+                    borderRight: isDarkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)',
+                    boxShadow: '4px 0 24px rgba(0,0,0,0.1)',
                     padding: '2rem 1rem',
                     display: 'flex',
                     flexDirection: 'column',
-                    transition: 'width 0.3s ease',
+                    transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     zIndex: 100,
-                    // On mobile, if collapsed, we might want to hide it completely or show just icons depending on design.
-                    // For now, let's assume collapsed means hidden on very small screens or just icons.
-                    // If isMobile is true, we might want to overlay.
                     transform: isMobile && isCollapsed ? 'translateX(-100%)' : 'translateX(0)',
+                    backdropFilter: 'blur(12px)',
+                    color: isDarkMode ? 'white' : 'var(--text-color)' // Set default text color
                 }}>
+
+                {/* Logo Section */}
                 <div style={{
                     marginBottom: '3rem',
-                    paddingLeft: isCollapsed ? '0' : '1rem',
+                    paddingLeft: isCollapsed ? '0' : '0.5rem',
                     display: 'flex',
                     justifyContent: isCollapsed ? 'center' : 'space-between',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    position: 'relative'
                 }}>
                     {!isCollapsed && (
-                        <img src={logoSrc} alt="Logo" style={{ height: '120px', transition: 'height 0.3s', maxWidth: '100%', objectFit: 'contain' }} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <img src={logoSrc} alt="Logo" style={{ height: '40px', objectFit: 'contain' }} />
+                            <span style={{
+                                fontSize: '1.2rem',
+                                fontWeight: 800,
+                                // Conditional Text Gradient
+                                background: isDarkMode
+                                    ? 'linear-gradient(90deg, #fff, #94a3b8)'
+                                    : 'linear-gradient(90deg, #1e293b, #475569)',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                letterSpacing: '-0.5px'
+                            }}>
+                                CoachFlow
+                            </span>
+                        </div>
                     )}
                     {isCollapsed && (
-                        <img src={logoSrc} alt="Logo" style={{ height: '40px', transition: 'height 0.3s' }} />
+                        <img src={logoSrc} alt="Logo" style={{ height: '32px', transition: 'height 0.3s' }} />
                     )}
 
                     {!isMobile && (
                         <button
                             onClick={toggleSidebar}
                             style={{
-                                background: 'none',
-                                border: 'none',
+                                background: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+                                border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)',
+                                borderRadius: '50%',
+                                width: '24px',
+                                height: '24px',
+                                display: 'flex', // Always flex, never hide
+                                zIndex: 101, // Ensure it's above everything when collapsed
+                                alignItems: 'center',
+                                justifyContent: 'center',
                                 cursor: 'pointer',
                                 color: 'var(--text-muted)',
-                                padding: '5px',
-                                display: isCollapsed ? 'none' : 'block' // Hide toggle when collapsed if we want to toggle from outside or use a different mechanism. 
-                                // Actually, let's keep it visible or move it. 
-                                // Better UI: Toggle button always visible at top or bottom.
+                                position: 'absolute',
+                                right: isCollapsed ? '-12px' : '-24px', // Adjust position when collapsed
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                zIndex: 10
                             }}
                         >
-                            <ChevronLeft size={20} />
+                            <ChevronLeft size={14} />
                         </button>
                     )}
                 </div>
 
-                {/* Toggle button for collapsed state to expand */}
-                {isCollapsed && !isMobile && (
-                    <button
-                        onClick={toggleSidebar}
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                            color: 'var(--text-muted)',
-                            marginBottom: '2rem',
-                            alignSelf: 'center'
-                        }}
-                    >
-                        <ChevronRight size={20} />
-                    </button>
-                )}
-
-                <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {/* Navigation Items */}
+                <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                     {menuItems.map((item) => {
                         const Icon = item.icon;
                         const isActive = activeTab === item.id;
+                        // Active Styles based on Theme
+                        const activeBg = isDarkMode
+                            ? 'linear-gradient(90deg, rgba(129, 140, 248, 0.15) 0%, rgba(129, 140, 248, 0.05) 100%)'
+                            : 'rgba(129, 140, 248, 0.1)';
+
+                        const activeColor = isDarkMode ? '#fff' : '#4338ca'; // Indigo-800 for light mode
+                        const inactiveColor = 'var(--text-muted)';
+                        const activeBorderLeft = '#818cf8';
+
                         return (
                             <button
                                 key={item.id}
@@ -156,130 +187,175 @@ const Sidebar = ({ activeTab, onTabChange, isCollapsed, toggleSidebar, isMobile,
                                     alignItems: 'center',
                                     justifyContent: isCollapsed ? 'center' : 'flex-start',
                                     gap: '1rem',
-                                    padding: '0.8rem 1rem',
-                                    border: 'none',
-                                    background: isActive ? 'rgba(255, 69, 0, 0.1)' : 'transparent',
-                                    color: isActive ? 'var(--primary-color)' : 'var(--text-muted)',
+                                    padding: '0.85rem 1rem',
+                                    background: isActive ? activeBg : 'transparent',
+                                    border: isActive && isDarkMode
+                                        ? '1px solid rgba(129, 140, 248, 0.3)'
+                                        : '1px solid transparent',
+                                    borderLeft: isActive
+                                        ? `3px solid ${activeBorderLeft}`
+                                        : '3px solid transparent',
+                                    color: isActive ? activeColor : inactiveColor,
                                     borderRadius: '8px',
                                     cursor: 'pointer',
-                                    fontSize: '0.9rem',
+                                    fontSize: '0.95rem',
                                     fontWeight: isActive ? 600 : 500,
                                     textAlign: 'left',
                                     transition: 'all 0.2s ease',
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    position: 'relative'
+                                    position: 'relative',
+                                    boxShadow: isActive && isDarkMode ? '0 0 15px rgba(129, 140, 248, 0.1)' : 'none'
                                 }}
                                 title={item.label}
                             >
-                                <Icon size={24} style={{ minWidth: '24px' }} />
+                                <Icon size={20} style={{ minWidth: '20px', color: isActive ? (isDarkMode ? '#818cf8' : '#4f46e5') : 'inherit' }} />
                                 {!isCollapsed && <span>{item.label}</span>}
+                                {isActive && !isCollapsed && isDarkMode && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        right: '10px',
+                                        width: '6px',
+                                        height: '6px',
+                                        borderRadius: '50%',
+                                        background: '#818cf8',
+                                        boxShadow: '0 0 8px #818cf8'
+                                    }} />
+                                )}
                             </button>
                         );
                     })}
                 </nav>
 
-                {/* User Profile Section */}
+                {/* Floating Profile Card (Bottom) */}
                 <div style={{
                     marginTop: 'auto',
-                    padding: '1rem',
-                    backgroundColor: 'var(--background-color)',
-                    borderRadius: '12px',
+                    padding: isCollapsed ? '0.5rem' : '1rem',
+                    // Floating card look
+                    background: isDarkMode
+                        ? 'rgba(30, 41, 59, 0.6)'
+                        : 'rgba(255, 255, 255, 0.8)',
+                    border: isDarkMode
+                        ? '1px solid rgba(255, 255, 255, 0.1)'
+                        : '1px solid rgba(0, 0, 0, 0.05)',
+                    borderRadius: '16px',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '0.5rem',
-                    alignItems: isCollapsed ? 'center' : 'stretch'
+                    alignItems: 'center',
+                    backdropFilter: 'blur(10px)',
+                    boxShadow: isDarkMode
+                        ? '0 10px 20px -5px rgba(0,0,0,0.3)'
+                        : '0 4px 12px rgba(0,0,0,0.05)',
+                    transition: 'all 0.3s ease'
                 }}>
                     {!isCollapsed && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                        <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
                             <div style={{
-                                width: '32px',
-                                height: '32px',
-                                borderRadius: '50%',
-                                background: 'var(--primary-color)',
+                                width: '40px',
+                                height: '40px',
+                                borderRadius: '12px', // Squircle
+                                background: 'linear-gradient(135deg, #6366f1, #a855f7)', // Purple-Indigo gradient
                                 color: 'white',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 fontWeight: 'bold',
-                                fontSize: '0.9rem'
+                                fontSize: '1rem',
+                                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)'
                             }}>
                                 {user?.email?.charAt(0).toUpperCase()}
                             </div>
-                            <div style={{ overflow: 'hidden' }}>
-                                <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    {user?.email}
+                            <div style={{ flex: 1, overflow: 'hidden' }}>
+                                <p style={{
+                                    margin: 0,
+                                    fontSize: '0.9rem',
+                                    fontWeight: 600,
+                                    color: isDarkMode ? '#f8fafc' : '#1e293b',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis'
+                                }}>
+                                    {user?.email?.split('@')[0]}
                                 </p>
-                                <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                    {user?.email === 'haseebservises@gmail.com' ? (
-                                        <span style={{ color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '2px' }}><Shield size={10} /> Admin</span>
-                                    ) : 'User'}
-                                </p>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '2px' }}>
+                                    <span style={{
+                                        fontSize: '0.7rem',
+                                        padding: '2px 6px',
+                                        borderRadius: '4px',
+                                        background: isAdmin ? 'rgba(244, 63, 94, 0.2)' : 'rgba(99, 102, 241, 0.2)',
+                                        color: isAdmin ? '#fb7185' : '#818cf8',
+                                        border: isAdmin ? '1px solid rgba(244, 63, 94, 0.4)' : '1px solid rgba(99, 102, 241, 0.4)',
+                                        fontWeight: 600
+                                    }}>
+                                        {isAdmin ? 'ADMIN' : 'PRO'}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     )}
 
-                    <button
-                        onClick={toggleTheme}
-                        style={{
-                            background: 'transparent',
-                            border: '1px solid #ddd',
-                            borderRadius: '8px',
-                            padding: '0.5rem',
-                            cursor: 'pointer',
-                            color: 'var(--text-color)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            justifyContent: 'center'
-                        }}
-                        title="Toggle Dark Mode"
-                    >
-                        {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-                        {!isCollapsed && <span style={{ fontSize: '0.9rem' }}>{isDarkMode ? 'Light' : 'Dark'}</span>}
-                    </button>
-
-                    <button
-                        onClick={logout}
-                        style={{
-                            background: '#fee2e2',
-                            border: 'none',
-                            borderRadius: '8px',
-                            padding: '0.5rem',
-                            cursor: 'pointer',
-                            color: '#991b1b',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            justifyContent: 'center',
-                            marginTop: '0.25rem'
-                        }}
-                        title="Sign Out"
-                    >
-                        {!isCollapsed && <span style={{ fontSize: '0.9rem' }}>Sign Out</span>}
-                    </button>
-
-                    {isAdmin && (
+                    <div style={{ width: '100%', display: 'flex', gap: '0.5rem', justifyContent: isCollapsed ? 'center' : 'space-between' }}>
                         <button
-                            onClick={() => setIsClientView(!isClientView)}
+                            onClick={toggleTheme}
                             style={{
-                                background: isClientView ? 'rgba(255, 69, 0, 0.1)' : 'transparent',
-                                border: '1px border #ccc',
+                                flex: 1,
+                                background: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+                                border: isDarkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)',
                                 borderRadius: '8px',
                                 padding: '0.5rem',
                                 cursor: 'pointer',
-                                color: isClientView ? 'var(--primary-color)' : 'var(--text-color)',
+                                color: 'var(--text-muted)',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '0.5rem',
                                 justifyContent: 'center',
-                                marginTop: '0.5rem',
-                                fontSize: '0.85rem'
+                                transition: 'all 0.2s'
                             }}
-                            title="Toggle Client View"
+                            title="Toggle Theme"
                         >
-                            {isClientView ? <EyeOff size={16} /> : <Eye size={16} />}
-                            {!isCollapsed && <span>{isClientView ? 'Exit Preview' : 'Preview Client'}</span>}
+                            {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
+                        </button>
+
+                        <button
+                            onClick={logout}
+                            style={{
+                                flex: 1,
+                                background: 'rgba(239, 68, 68, 0.1)', // Red tint
+                                border: '1px solid rgba(239, 68, 68, 0.2)',
+                                borderRadius: '8px',
+                                padding: '0.5rem',
+                                cursor: 'pointer',
+                                color: '#f87171',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                transition: 'all 0.2s'
+                            }}
+                            title="Sign Out"
+                        >
+                            <LogOut size={16} />
+                        </button>
+                    </div>
+
+                    {isAdmin && !isCollapsed && (
+                        <button
+                            onClick={() => setIsClientView(!isClientView)}
+                            style={{
+                                width: '100%',
+                                marginTop: '0.5rem',
+                                background: 'transparent',
+                                border: '1px dashed var(--text-muted)',
+                                borderRadius: '8px',
+                                padding: '0.4rem',
+                                cursor: 'pointer',
+                                color: 'var(--text-muted)',
+                                fontSize: '0.75rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.5rem'
+                            }}
+                        >
+                            {isClientView ? <EyeOff size={14} /> : <Eye size={14} />}
+                            {isClientView ? 'Exit Preview' : 'Preview Client'}
                         </button>
                     )}
                 </div>

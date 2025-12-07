@@ -24,6 +24,8 @@ const AdminPanel = () => {
     });
 
     const [configInput, setConfigInput] = useState({}); // For Settings Tab inputs
+    const [tabs, setTabs] = useState([]); // Universal Tabs Config
+    const [subscription, setSubscription] = useState({ endDate: '' }); // Subscription Config
 
     // Initial Load for Admin Settings
     useEffect(() => {
@@ -160,10 +162,21 @@ const AdminPanel = () => {
             allowExport: configObj.features?.allowExport !== false,
         });
 
+
+        // Extract Tabs (Universal)
+        setTabs(configObj.tabs || []);
+
+        // Extract Subscription
+        setSubscription({
+            endDate: configObj.subscription?.endDate || ''
+        });
+
         // Keep the rest in Advanced
         const rest = { ...configObj };
         delete rest.branding;
         delete rest.features;
+        delete rest.tabs;
+        delete rest.subscription;
         setAdvancedConfig(JSON.stringify(rest, null, 2));
     };
 
@@ -274,7 +287,9 @@ const AdminPanel = () => {
             const finalConfig = {
                 ...baseConfig,
                 branding,
-                features
+                features,
+                tabs,
+                subscription
             };
 
             const payload = {
@@ -299,7 +314,7 @@ const AdminPanel = () => {
     };
 
     return (
-        <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+        <div className="dashboard-container">
             <button
                 onClick={() => navigate('/dashboard')}
                 style={{
@@ -321,7 +336,7 @@ const AdminPanel = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: '2rem', alignItems: 'start' }}>
                 {/* Sidebar: Recent Clients */}
-                <div className="card" style={{ padding: '1.5rem', height: 'fit-content' }}>
+                <div className="glass-card" style={{ height: 'fit-content' }}>
                     <h3 style={{ fontSize: '1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)' }}>
                         <Users size={18} /> Recent Clients
                     </h3>
@@ -363,7 +378,7 @@ const AdminPanel = () => {
 
                 {activeTab === 'settings' ? (
                     /* SETTINGS MODE */
-                    <div className="card"> {/* Re-use card style but for settings */}
+                    <div className="glass-card"> {/* Re-use card style but for settings */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid #eee' }}>
                             <button onClick={() => setActiveTab('orders')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#666' }}>
                                 <ArrowLeft size={20} style={{ marginRight: '0.5rem' }} /> Back
@@ -373,7 +388,7 @@ const AdminPanel = () => {
                             </h2>
                         </div>
 
-                        <div className="glass-panel" style={{ padding: '2rem', borderRadius: '12px' }}>
+                        <div className="glass-panel" style={{ padding: '2rem', borderRadius: '12px', background: 'rgba(0,0,0,0.2)' }}>
                             <div style={{ marginBottom: '2rem' }}>
                                 <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                     <Send size={20} /> Email Notifications (EmailJS)
@@ -449,7 +464,7 @@ const AdminPanel = () => {
                     </div>
                 ) : (
                     /* CLIENT CONFIG MODE (Standard View) */
-                    <div className="card">
+                    <div className="glass-card">
                         <div style={{ borderBottom: '1px solid #eee', paddingBottom: '1.5rem', marginBottom: '2rem' }}>
                             <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                 <Settings className="text-primary" />
@@ -475,7 +490,7 @@ const AdminPanel = () => {
                         )}
 
                         {/* Client Search */}
-                        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr) auto', gap: '1rem', alignItems: 'end', marginBottom: '2rem', padding: '1.5rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr) auto', gap: '1rem', alignItems: 'end', marginBottom: '2rem', padding: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
                             <div>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.9rem' }}>Load Client Profile</label>
                                 <input
@@ -524,8 +539,8 @@ const AdminPanel = () => {
                                 </p>
                             </div>
 
-                            {/* Tabs for Visual vs Advanced vs Orders */}
-                            <div style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid #ddd', marginBottom: '1.5rem' }}>
+                            {/* Tabs for Visual vs Advanced vs Orders vs Universal */}
+                            <div style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid #ddd', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
                                 <button
                                     type="button"
                                     onClick={() => setActiveTab('orders')}
@@ -547,6 +562,25 @@ const AdminPanel = () => {
                                 </button>
                                 <button
                                     type="button"
+                                    onClick={() => setActiveTab('universal')}
+                                    style={{
+                                        padding: '0.75rem 1rem',
+                                        border: 'none',
+                                        background: 'none',
+                                        borderBottom: activeTab === 'universal' ? '2px solid var(--primary-color)' : '2px solid transparent',
+                                        color: activeTab === 'universal' ? 'var(--primary-color)' : 'var(--text-muted)',
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem'
+                                    }}
+                                >
+                                    <ToggleLeft size={18} />
+                                    Universal Builder
+                                </button>
+                                <button
+                                    type="button"
                                     onClick={() => setActiveTab('visual')}
                                     style={{
                                         padding: '0.75rem 1rem',
@@ -562,7 +596,7 @@ const AdminPanel = () => {
                                     }}
                                 >
                                     <Palette size={18} />
-                                    Visual Editor
+                                    Visual / Branding
                                 </button>
                                 <button
                                     type="button"
@@ -581,7 +615,7 @@ const AdminPanel = () => {
                                     }}
                                 >
                                     <Code size={18} />
-                                    Advanced (Tables)
+                                    Advanced JSON
                                 </button>
                                 <button
                                     type="button"
@@ -600,7 +634,7 @@ const AdminPanel = () => {
                                     }}
                                 >
                                     <Settings size={18} />
-                                    Settings
+                                    System
                                 </button>
                             </div>
 
@@ -612,7 +646,7 @@ const AdminPanel = () => {
                                         <p style={{ color: '#666', fontStyle: 'italic' }}>No pending orders.</p>
                                     ) : (
                                         pendingOrders.map((order) => (
-                                            <div key={order.email} style={{ padding: '1rem', border: '1px solid #eee', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' }}>
+                                            <div key={order.email} style={{ padding: '1rem', border: '1px solid var(--border-color)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--card-bg)' }}>
                                                 <div>
                                                     <div style={{ fontWeight: 700, fontSize: '1rem' }}>{order.config?.name || 'Unknown Name'}</div>
                                                     <div style={{ color: '#666', fontSize: '0.9rem' }}>{order.email}</div>
@@ -644,6 +678,183 @@ const AdminPanel = () => {
                                         ))
                                     )}
                                 </div>
+                            ) : activeTab === 'universal' ? (
+                                <div>
+                                    <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        <ToggleLeft size={20} /> Universal Builder
+                                    </h3>
+                                    <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
+                                        Define the TABS and DATA Source for this client.
+                                        Requires <b>Spreadsheet ID</b> to be set above.
+                                    </p>
+
+                                    {/* Tabs List */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                        {tabs.map((tab, index) => (
+                                            <div key={index} style={{ padding: '1rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: 'var(--card-bg)' }}>
+                                                {/* Tab Basic Info */}
+                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '1rem', alignItems: 'end', marginBottom: '1rem' }}>
+                                                    <div>
+                                                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>Tab ID (internal)</label>
+                                                        <input
+                                                            type="text"
+                                                            value={tab.id}
+                                                            onChange={(e) => {
+                                                                const newTabs = [...tabs];
+                                                                newTabs[index].id = e.target.value;
+                                                                setTabs(newTabs);
+                                                            }}
+                                                            placeholder="e.g. students"
+                                                            style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px' }}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>Display Label</label>
+                                                        <input
+                                                            type="text"
+                                                            value={tab.label}
+                                                            onChange={(e) => {
+                                                                const newTabs = [...tabs];
+                                                                newTabs[index].label = e.target.value;
+                                                                setTabs(newTabs);
+                                                            }}
+                                                            placeholder="e.g. Students 2024"
+                                                            style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px' }}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>GID (Sheet ID)</label>
+                                                        <input
+                                                            type="text"
+                                                            value={tab.gid}
+                                                            onChange={(e) => {
+                                                                const newTabs = [...tabs];
+                                                                newTabs[index].gid = e.target.value;
+                                                                setTabs(newTabs);
+                                                            }}
+                                                            placeholder="0"
+                                                            style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px' }}
+                                                        />
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (window.confirm('Are you sure you want to delete this tab?')) {
+                                                                const newTabs = tabs.filter((_, i) => i !== index);
+                                                                setTabs(newTabs);
+                                                            }
+                                                        }}
+                                                        style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem' }}
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
+
+                                                {/* Column Mapper UI */}
+                                                <div style={{ background: 'rgba(0,0,0,0.03)', padding: '1rem', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+                                                    <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Column Mapper</h4>
+
+                                                    {(!tab.columns || tab.columns.length === 0) && (
+                                                        <p style={{ fontSize: '0.8rem', color: '#999', fontStyle: 'italic', marginBottom: '0.5rem' }}>
+                                                            No columns defined. Table will use auto-detected columns (defaults).
+                                                        </p>
+                                                    )}
+
+                                                    {(tab.columns || []).map((col, colIdx) => (
+                                                        <div key={colIdx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Sheet Header (e.g. 'Student Name')"
+                                                                value={col.key || ''} // In our service, we use the header as the key usually, but let's stick to key=SheetHeader
+                                                                onChange={(e) => {
+                                                                    const newTabs = [...tabs];
+                                                                    if (!newTabs[index].columns) newTabs[index].columns = [];
+                                                                    newTabs[index].columns[colIdx] = { ...col, key: e.target.value };
+                                                                    setTabs(newTabs);
+                                                                }}
+                                                                style={{ padding: '0.4rem', border: '1px solid #ddd', borderRadius: '4px', fontSize: '0.85rem' }}
+                                                            />
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Display Label (e.g. 'Name')"
+                                                                value={col.label || col.header || ''}
+                                                                onChange={(e) => {
+                                                                    const newTabs = [...tabs];
+                                                                    newTabs[index].columns[colIdx] = { ...col, label: e.target.value, header: e.target.value };
+                                                                    setTabs(newTabs);
+                                                                }}
+                                                                style={{ padding: '0.4rem', border: '1px solid #ddd', borderRadius: '4px', fontSize: '0.85rem' }}
+                                                            />
+                                                            <select
+                                                                value={col.type || 'text'}
+                                                                onChange={(e) => {
+                                                                    const newTabs = [...tabs];
+                                                                    newTabs[index].columns[colIdx] = { ...col, type: e.target.value };
+                                                                    setTabs(newTabs);
+                                                                }}
+                                                                style={{ padding: '0.4rem', border: '1px solid #ddd', borderRadius: '4px', fontSize: '0.85rem' }}
+                                                            >
+                                                                <option value="text">Text</option>
+                                                                <option value="date">Date</option>
+                                                                <option value="badge">Status Badge</option>
+                                                                <option value="currency">Money ($)</option>
+                                                            </select>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    const newTabs = [...tabs];
+                                                                    newTabs[index].columns = newTabs[index].columns.filter((_, i) => i !== colIdx);
+                                                                    setTabs(newTabs);
+                                                                }}
+                                                                style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}
+                                                            >
+                                                                <Trash2 size={14} />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const newTabs = [...tabs];
+                                                            if (!newTabs[index].columns) newTabs[index].columns = [];
+                                                            newTabs[index].columns.push({ key: '', label: '', type: 'text' });
+                                                            setTabs(newTabs);
+                                                        }}
+                                                        style={{
+                                                            fontSize: '0.8rem',
+                                                            color: 'var(--primary-color)',
+                                                            background: 'none',
+                                                            border: 'none',
+                                                            padding: '0',
+                                                            marginTop: '0.5rem',
+                                                            fontWeight: 600,
+                                                            cursor: 'pointer'
+                                                        }}
+                                                    >
+                                                        + Add Column
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setTabs([...tabs, { id: `tab_${Date.now()}`, label: 'New Tab', gid: '0' }])}
+                                            style={{
+                                                padding: '0.75rem',
+                                                border: '1px dashed var(--primary-color)',
+                                                color: 'var(--primary-color)',
+                                                background: 'none',
+                                                borderRadius: '8px',
+                                                cursor: 'pointer',
+                                                fontWeight: 600
+                                            }}
+                                        >
+                                            + Add New Tab
+                                        </button>
+                                    </div>
+                                </div>
                             ) : activeTab === 'visual' ? (
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
                                     {/* Branding Section */}
@@ -651,7 +862,7 @@ const AdminPanel = () => {
                                         <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                             <Palette size={20} /> Branding
                                         </h3>
-                                        <div style={{ background: '#fff', border: '1px solid #eee', padding: '1.5rem', borderRadius: '8px' }}>
+                                        <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', padding: '1.5rem', borderRadius: '8px' }}>
                                             <div style={{ marginBottom: '1rem' }}>
                                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Logo URL</label>
                                                 <input
@@ -675,31 +886,51 @@ const AdminPanel = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    {/* Features Section */}
-                                    <div>
-                                        <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                            <ToggleLeft size={20} /> Features
-                                        </h3>
-                                        <div style={{ background: '#fff', border: '1px solid #eee', padding: '1.5rem', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                            {Object.keys(features).map(key => (
-                                                <label key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
-                                                    <span style={{ fontSize: '0.95rem' }}>
-                                                        {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                                                    </span>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={features[key]}
-                                                        onChange={(e) => setFeatures({ ...features, [key]: e.target.checked })}
-                                                        style={{ width: '18px', height: '18px', accentColor: 'var(--primary-color)' }}
-                                                    />
-                                                </label>
-                                            ))}
+                                        {/* Subscription Section */}
+                                        <div style={{ gridColumn: '1 / -1', marginTop: '1rem', borderTop: '1px solid #eee', paddingTop: '1.5rem' }}>
+                                            <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <AlertCircle size={20} /> Subscription Management
+                                            </h3>
+                                            <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', padding: '1.5rem', borderRadius: '8px' }}>
+                                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 600 }}>Subscription End Date</label>
+                                                <input
+                                                    type="date"
+                                                    value={subscription.endDate}
+                                                    onChange={(e) => setSubscription({ ...subscription, endDate: e.target.value })}
+                                                    style={{ padding: '0.75rem', borderRadius: '4px', border: '1px solid #ddd', width: '100%', maxWidth: '300px' }}
+                                                />
+                                                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+                                                    Use this to automatically lock the client out after this date. Set to empty to disable lockout.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Features Section */}
+                                        <div>
+                                            <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <ToggleLeft size={20} /> Features
+                                            </h3>
+                                            <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', padding: '1.5rem', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                                {Object.keys(features).map(key => (
+                                                    <label key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+                                                        <span style={{ fontSize: '0.95rem' }}>
+                                                            {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                                                        </span>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={features[key]}
+                                                            onChange={(e) => setFeatures({ ...features, [key]: e.target.checked })}
+                                                            style={{ width: '18px', height: '18px', accentColor: 'var(--primary-color)' }}
+                                                        />
+                                                    </label>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             ) : (
+                                /* ADVANCED TAB */
                                 <div>
                                     <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                         <Code size={20} /> Advanced Configuration

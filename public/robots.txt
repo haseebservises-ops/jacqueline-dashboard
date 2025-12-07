@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /settings
+Disallow: /reset-password
+
+Sitemap: https://coachflowos.com/sitemap.xml

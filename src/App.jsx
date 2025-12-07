@@ -6,6 +6,9 @@ import AdminPanel from './components/AdminPanel';
 import LandingPage from './components/LandingPage';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import ForgotPassword from './components/ForgotPassword';
+import UpdatePassword from './components/UpdatePassword';
+import SubscriptionExpired from './components/SubscriptionExpired';
 
 function App() {
   return (
@@ -14,6 +17,9 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/update-password" element={<UpdatePassword />} />
+          <Route path="/subscription-expired" element={<SubscriptionExpired />} />
           <Route
             path="/dashboard"
             element={

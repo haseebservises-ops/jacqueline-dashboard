@@ -127,7 +127,7 @@ const DataTable = ({ data, showAmount, columns }) => {
     );
 
     return (
-        <div className="card">
+        <div className="glass-card">
             {/* Header: Title + Search */}
             <div style={{
                 display: 'flex',
@@ -148,7 +148,9 @@ const DataTable = ({ data, showAmount, columns }) => {
                         style={{
                             padding: '0.5rem 1rem 0.5rem 2.5rem',
                             borderRadius: '8px',
-                            border: '1px solid #eee',
+                            border: '1px solid var(--border-color)',
+                            background: 'transparent',
+                            color: 'var(--text-color)',
                             fontSize: '0.9rem',
                             outline: 'none',
                             width: '250px'
@@ -161,7 +163,7 @@ const DataTable = ({ data, showAmount, columns }) => {
             <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
                     <thead>
-                        <tr style={{ borderBottom: '2px solid #f0f0f0' }}>
+                        <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
                             {activeColumns.map((col, idx) => (
                                 <Th key={idx} col={col} />
                             ))}
@@ -169,7 +171,7 @@ const DataTable = ({ data, showAmount, columns }) => {
                     </thead>
                     <tbody>
                         {currentRows.map((row, rIdx) => (
-                            <tr key={rIdx} style={{ borderBottom: '1px solid #f9f9f9' }}>
+                            <tr key={rIdx} style={{ borderBottom: '1px solid var(--border-color)' }}>
                                 {activeColumns.map((col, cIdx) => (
                                     <td key={cIdx} style={{ padding: '1rem', fontSize: '0.9rem', textAlign: col.align || 'left' }}>
                                         {col.render ? col.render(row) : row[col.key]}
@@ -202,7 +204,7 @@ const DataTable = ({ data, showAmount, columns }) => {
                         disabled={currentPage === 1}
                         style={{
                             background: 'none',
-                            border: '1px solid #eee',
+                            border: '1px solid var(--border-color)',
                             borderRadius: '50%',
                             width: '32px',
                             height: '32px',
@@ -210,7 +212,7 @@ const DataTable = ({ data, showAmount, columns }) => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                            color: currentPage === 1 ? '#ccc' : 'var(--text-color)'
+                            color: currentPage === 1 ? 'var(--text-muted)' : 'var(--text-color)'
                         }}
                     >
                         <ChevronLeft size={16} />
@@ -225,7 +227,7 @@ const DataTable = ({ data, showAmount, columns }) => {
                         disabled={currentPage === totalPages}
                         style={{
                             background: 'none',
-                            border: '1px solid #eee',
+                            border: '1px solid var(--border-color)',
                             borderRadius: '50%',
                             width: '32px',
                             height: '32px',
@@ -233,7 +235,7 @@ const DataTable = ({ data, showAmount, columns }) => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                            color: currentPage === totalPages ? '#ccc' : 'var(--text-color)'
+                            color: currentPage === totalPages ? 'var(--text-muted)' : 'var(--text-color)'
                         }}
                     >
                         <ChevronRight size={16} />

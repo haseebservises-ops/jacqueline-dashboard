@@ -1,22 +1,44 @@
 :root {
-  --primary-color: #FF4500;
-  --secondary-color: #1A1A2E;
-  --background-color: #F5F5F7;
-  --card-bg: #FFFFFF;
-  --text-color: #333333;
-  --text-muted: #666666;
-  --border-radius: 12px;
+  --primary-color: #4f46e5;
+  /* Indigo 600 */
+  --primary-glow: rgba(79, 70, 229, 0.5);
+  --secondary-color: #1e293b;
+  /* Slate 800 */
+  --background-color: #f8fafc;
+  /* Slate 50 */
+  --card-bg: #ffffff;
+  --text-color: #0f172a;
+  /* Slate 900 */
+  --text-muted: #64748b;
+  /* Slate 500 */
+  --border-color: #e2e8f0;
+  --border-radius: 16px;
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 body.dark-mode {
-  --secondary-color: #E2E2E2;
-  --background-color: #121212;
-  --card-bg: #1E1E1E;
-  --text-color: #E2E2E2;
-  --text-muted: #A0A0A0;
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --primary-color: #818cf8;
+  /* Indigo 400 */
+  --primary-glow: rgba(129, 140, 248, 0.3);
+  --secondary-color: #f1f5f9;
+  /* Slate 100 */
+  --background-color: #0f172a;
+  /* Slate 900 (Main BG) */
+  --card-bg: #1e293b;
+  /* Slate 800 (Fallback) */
+  --text-color: #f8fafc;
+  /* Slate 50 */
+  --text-muted: #94a3b8;
+  /* Slate 400 */
+  --border-color: rgba(255, 255, 255, 0.08);
+  /* Transparent White */
+  --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  --glass-bg: rgba(30, 41, 59, 0.6);
+  /* Translucent Slate 800 */
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 body {
@@ -25,6 +47,7 @@ body {
   background-color: var(--background-color);
   color: var(--text-color);
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 * {
@@ -38,27 +61,48 @@ h4,
 h5,
 h6 {
   margin: 0;
-  font-weight: 600;
-  color: var(--secondary-color);
+  font-weight: 700;
+  color: var(--text-color);
+  /* Updated to use variable */
 }
 
 .dashboard-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
-.card {
-  background: var(--card-bg);
+/* Glassmorphism Card Utility */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: var(--glass-border);
   border-radius: var(--border-radius);
   padding: 1.5rem;
   box-shadow: var(--shadow);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
 }
 
-.card:hover {
+.glass-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.3);
+  background: rgba(30, 41, 59, 0.75);
+  /* Slightly more opaque on hover in dark mode */
+}
+
+body:not(.dark-mode) .glass-card:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* Sidebar Specific Glass */
+.glass-sidebar {
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-right: var(--glass-border) !important;
 }
 
 /* Sidebar Overlay for Mobile */
@@ -70,8 +114,7 @@ h6 {
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 90;
-  /* Just below sidebar's 100 */
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
   animation: fadeIn 0.3s ease;
 }
 
@@ -89,6 +132,129 @@ h6 {
   .dashboard-container {
     padding: 1rem;
     margin-left: 0 !important;
-    /* Override explicit margins if any */
+  }
+}
+
+/* Utility for text gradients */
+.text-gradient {
+  background: linear-gradient(to right, #818cf8, #ec4899);
+  -webkit-background-clip: text;
+
+  /* Global Form Elements for Dark Mode Compatibility */
+  input,
+  select,
+  textarea {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--border-color) !important;
+    transition: all 0.3s ease;
+  }
+
+  input::placeholder,
+  select::placeholder,
+  textarea::placeholder {
+    color: var(--text-muted) !important;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 2px var(--primary-glow);
+  }
+
+  /* Scrollbar Styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+}
+
+/* Global Form Elements for Dark Mode Compatibility */
+input,
+select,
+textarea {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--border-color) !important;
+  transition: all 0.3s ease;
+}
+
+input::placeholder,
+select::placeholder,
+textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 2px var(--primary-glow);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 4px;
+  opacity: 0.5;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+}
+
+
+/* Skeleton Loader Styling */
+.skeleton-loader {
+  background-color: var(--border-color);
+  /* Adaptive base color */
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-loader::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(90deg,
+      rgba(255, 255, 255, 0) 0,
+      rgba(255, 255, 255, 0.2) 20%,
+      rgba(255, 255, 255, 0.5) 60%,
+      rgba(255, 255, 255, 0));
+  animation: shimmer 2s infinite;
+}
+
+body.dark-mode .skeleton-loader::after {
+  background-image: linear-gradient(90deg,
+      rgba(255, 255, 255, 0) 0,
+      rgba(255, 255, 255, 0.05) 20%,
+      rgba(255, 255, 255, 0.1) 60%,
+      rgba(255, 255, 255, 0));
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
   }
 }
