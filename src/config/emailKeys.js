@@ -1,27 +1,34 @@
 /**
  * EMAIL POOL CONFIGURATION
  * 
- * Instructions for User:
- * 1. Create accounts on EmailJS (Free Tier allows 200/month).
- * 2. For each account, get the:
- *    - Service ID (e.g., service_xyz)
- *    - Template ID (e.g., template_xyz)
- *    - Public Key (e.g., user_xyz or unique_string)
- * 3. Add them to this list. The system will randomly pick one for each email sent.
+ * The system will randomly pick one of these accounts for every email.
+ * If one fails (e.g. quota limit reached), it will automatically try another one.
  */
 
 export const EMAIL_POOL = [
-    // Account 1
+    // Account 1 (Generic)
     {
-        serviceId: 'service_EXAMPLE1',
-        templateId: 'template_EXAMPLE1',
-        publicKey: 'key_EXAMPLE1'
+        serviceId: 'service_558cphs',
+        templateId: 'template_6dhgaaw',
+        publicKey: 'wXvJlNCb9dYZFu7ck'
     },
-    // Account 2
+    // Account 2 (mon840830)
     {
-        serviceId: 'service_EXAMPLE2',
-        templateId: 'template_EXAMPLE2',
-        publicKey: 'key_EXAMPLE2'
+        serviceId: 'service_sfi4ofe',
+        templateId: 'template_honqbhj',
+        publicKey: 'SLMsMn-WcjPQCTh9y'
     },
-    // ... Add as many as you want
+    // Account 3 (Contact Us)
+    {
+        serviceId: 'service_at7j2nt',
+        templateId: 'template_6h25enw',
+        publicKey: 'cNbQGcv0mlbc7et2g'
+    },
+    // Account 4 (ah0063725)
+    {
+        serviceId: 'service_xliz6wh',
+        templateId: 'template_0d2rziq',
+        publicKey: 'de1Blu50SkfII7uNQ'
+    },
+    // Add more accounts here...
 ];
