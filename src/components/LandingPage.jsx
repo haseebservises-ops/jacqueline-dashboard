@@ -69,31 +69,8 @@ const LandingPage = () => {
         }
     };
 
-    return (
-        <div style={{ fontFamily: '"Inter", sans-serif', color: '#f3f4f6', backgroundColor: '#0f172a', minHeight: '100vh', overflowX: 'hidden' }}>
-            <Helmet>
-                <title>CoachFlow | High-Ticket Coaching Framework & Dashboard</title>
-                <meta name="description" content="The ultimate operating system for high-ticket coaches. Automate lead tracking, visualize revenue, and manage framework clients in one secure, real-time dashboard." />
-                <meta name="keywords" content="coachflow, coaching dashboard, high-ticket coaching, coaching frameworks, client management system, coach data visualization" />
-                <link rel="canonical" href="https://coachflowos.com/" />
-
-                {/* Open Graph / Facebook */}
-                <meta property="og:type" content="website" />
-                <meta property="og:url" content="https://coachflowos.com/" />
-                <meta property="og:title" content="CoachFlow - The Operating System for High-Ticket Frameworks" />
-                <meta property="og:description" content="Stop guessing. Start scaling. Used by top coaches to track millions in revenue." />
-                <meta property="og:image" content="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80" />
-
-                {/* Twitter */}
-                <meta property="twitter:card" content="summary_large_image" />
-                <meta property="twitter:url" content="https://coachflowos.com/" />
-                <meta property="twitter:title" content="CoachFlow - The Operating System for High-Ticket Frameworks" />
-                <meta property="twitter:description" content="The detailed dashboard for high-ticket coaches. Track leads, revenue, and client progress." />
-                <meta property="twitter:image" content="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80" />
-
-                {/* Structured Data (JSON-LD) */}
-                <script type="application/ld+json">
-                    {`
+    <script type="application/ld+json">
+        {`
                     {
                       "@context": "https://schema.org",
                       "@type": "SoftwareApplication",
@@ -114,114 +91,114 @@ const LandingPage = () => {
                       "description": "The Operating System for High-Ticket Frameworks. Automate your leads, visualize revenue, and manage your pipeline in one beautiful, real-time dashboard."
                     }
                     `}
-                </script>
-            </Helmet>
+    </script>
+            </Helmet >
 
-            {/* Background Gradients */}
-            < div style={{ position: 'fixed', top: '-10%', left: '50%', transform: 'translateX(-50%)', width: '800px', height: '800px', backgroundColor: '#6366f1', filter: 'blur(180px)', opacity: 0.1, zIndex: 0, borderRadius: '50%' }} />
+    {/* Background Gradients */ }
+    < div style = {{ position: 'fixed', top: '-10%', left: '50%', transform: 'translateX(-50%)', width: '800px', height: '800px', backgroundColor: '#6366f1', filter: 'blur(180px)', opacity: 0.1, zIndex: 0, borderRadius: '50%' }} />
 
-            {/* Navbar */}
-            <header style={{ position: 'relative', zIndex: 10, padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '1200px', margin: '0 auto' }}>
-                <div style={{ fontWeight: 800, fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fff' }}>
-                    <BarChart2 color="#818cf8" fill="#4f46e5" /> CoachFlow
-                </div>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                    {user?.email === 'haseebservises@gmail.com' && (
-                        <button onClick={() => navigate('/admin')} style={{ color: '#9ca3af', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}>Admin</button>
-                    )}
-                    <button
-                        onClick={() => navigate(user ? '/dashboard' : '/login')}
-                        style={{ color: '#fff', fontWeight: 600, border: '1px solid rgba(255,255,255,0.2)', padding: '0.5rem 1.2rem', borderRadius: '50px', cursor: 'pointer', background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)' }}
-                    >
-                        {user ? 'Dashboard' : 'Login'}
-                    </button>
-                </div>
-            </header>
+{/* Navbar */ }
+<header style={{ position: 'relative', zIndex: 10, padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ fontWeight: 800, fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fff' }}>
+        <BarChart2 color="#818cf8" fill="#4f46e5" /> CoachFlow
+    </div>
+    <div style={{ display: 'flex', gap: '1rem' }}>
+        {user?.email === 'haseebservises@gmail.com' && (
+            <button onClick={() => navigate('/admin')} style={{ color: '#9ca3af', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}>Admin</button>
+        )}
+        <button
+            onClick={() => navigate(user ? '/dashboard' : '/login')}
+            style={{ color: '#fff', fontWeight: 600, border: '1px solid rgba(255,255,255,0.2)', padding: '0.5rem 1.2rem', borderRadius: '50px', cursor: 'pointer', background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)' }}
+        >
+            {user ? 'Dashboard' : 'Login'}
+        </button>
+    </div>
+</header>
 
-            {/* Hero Section */}
-            <section style={{ position: 'relative', zIndex: 10, padding: '5rem 1rem 3rem', textAlign: 'center' }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'rgba(99, 102, 241, 0.1)', color: '#a5b4fc', padding: '0.5rem 1rem', borderRadius: '50px', fontSize: '0.9rem', fontWeight: 600, marginBottom: '2rem', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
-                    <Star size={16} fill="#818cf8" /> New: Automated Lead Tracking
-                </div>
-                <h1 style={{ fontSize: '3.5rem', fontWeight: 900, marginBottom: '1.5rem', lineHeight: 1.1, maxWidth: '900px', margin: '0 auto 1.5rem', color: '#ffffff' }}>
-                    The Operating System for <br />
-                    <span style={{ background: 'linear-gradient(to right, #818cf8, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                        High-Ticket Frameworks
-                    </span>
-                </h1>
-                <p style={{ fontSize: '1.25rem', color: '#cbd5e1', marginBottom: '3rem', lineHeight: 1.6, maxWidth: '600px', margin: '0 auto 3rem' }}>
-                    Stop guessing. Start scaling. Automate your leads, visualize your revenue, and manage your pipeline in one beautiful, real-time dashboard.
-                </p>
-                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-                    <a href="#pricing" style={{ padding: '1rem 2.5rem', backgroundColor: '#4f46e5', color: 'white', borderRadius: '50px', fontWeight: 700, fontSize: '1.1rem', textDecoration: 'none', boxShadow: '0 0 20px rgba(79, 70, 229, 0.4)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        Start Membership <ArrowRight size={20} />
-                    </a>
-                </div>
-            </section>
+{/* Hero Section */ }
+<section style={{ position: 'relative', zIndex: 10, padding: '5rem 1rem 3rem', textAlign: 'center' }}>
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'rgba(99, 102, 241, 0.1)', color: '#a5b4fc', padding: '0.5rem 1rem', borderRadius: '50px', fontSize: '0.9rem', fontWeight: 600, marginBottom: '2rem', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+        <Star size={16} fill="#818cf8" /> New: Automated Lead Tracking
+    </div>
+    <h1 style={{ fontSize: '3.5rem', fontWeight: 900, marginBottom: '1.5rem', lineHeight: 1.1, maxWidth: '900px', margin: '0 auto 1.5rem', color: '#ffffff' }}>
+        The Operating System for <br />
+        <span style={{ background: 'linear-gradient(to right, #818cf8, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            High-Ticket Frameworks
+        </span>
+    </h1>
+    <p style={{ fontSize: '1.25rem', color: '#cbd5e1', marginBottom: '3rem', lineHeight: 1.6, maxWidth: '600px', margin: '0 auto 3rem' }}>
+        Stop guessing. Start scaling. Automate your leads, visualize your revenue, and manage your pipeline in one beautiful, real-time dashboard.
+    </p>
+    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+        <a href="#pricing" style={{ padding: '1rem 2.5rem', backgroundColor: '#4f46e5', color: 'white', borderRadius: '50px', fontWeight: 700, fontSize: '1.1rem', textDecoration: 'none', boxShadow: '0 0 20px rgba(79, 70, 229, 0.4)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            Start Membership <ArrowRight size={20} />
+        </a>
+    </div>
+</section>
 
-            {/* Dashboard Mockup (High Fidelity) */}
-            <section style={{ position: 'relative', zIndex: 10, padding: '0 1rem 6rem', maxWidth: '1200px', margin: '0 auto' }}>
-                <div style={{
-                    borderRadius: '20px',
-                    padding: '0.5rem',
-                    background: 'linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0))',
-                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
-                }}>
-                    <img
-                        src={dashboardMockup}
-                        alt="CoachFlow Dashboard Preview"
-                        style={{ width: '100%', height: 'auto', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', display: 'block' }}
-                    />
-                </div>
-            </section>
+{/* Dashboard Mockup (High Fidelity) */ }
+<section style={{ position: 'relative', zIndex: 10, padding: '0 1rem 6rem', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{
+        borderRadius: '20px',
+        padding: '0.5rem',
+        background: 'linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0))',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+    }}>
+        <img
+            src={dashboardMockup}
+            alt="CoachFlow Dashboard Preview"
+            style={{ width: '100%', height: 'auto', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', display: 'block' }}
+        />
+    </div>
+</section>
 
-            {/* Pricing Section */}
-            <section id="pricing" style={{ position: 'relative', zIndex: 10, padding: '6rem 1rem', backgroundColor: '#0f172a' }}>
-                <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-                    <h2 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem', color: '#fff' }}>Simple, Transparent Pricing</h2>
-                    <p style={{ color: '#cbd5e1', fontSize: '1.1rem' }}>Everything you need to grow your coaching business.</p>
-                </div>
+{/* Pricing Section */ }
+<section id="pricing" style={{ position: 'relative', zIndex: 10, padding: '6rem 1rem', backgroundColor: '#0f172a' }}>
+    <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+        <h2 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem', color: '#fff' }}>Simple, Transparent Pricing</h2>
+        <p style={{ color: '#cbd5e1', fontSize: '1.1rem' }}>Everything you need to grow your coaching business.</p>
+    </div>
 
-                <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-                    <div style={{
-                        background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
-                        border: '1px solid rgba(99, 102, 241, 0.4)',
-                        borderRadius: '24px',
-                        padding: '3rem',
-                        position: 'relative',
-                        boxShadow: '0 0 50px rgba(79, 70, 229, 0.2)'
-                    }}>
-                        <div style={{ position: 'absolute', top: '-15px', left: '50%', transform: 'translateX(-50%)', backgroundColor: '#4f46e5', color: 'white', padding: '0.35rem 1.2rem', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.5px' }}>
-                            MOST POPULAR
-                        </div>
-                        <h3 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem', color: '#fff' }}>CoachFlow Pro</h3>
-                        <div style={{ fontSize: '3.5rem', fontWeight: 900, marginBottom: '0.5rem', color: '#fff', letterSpacing: '-1px' }}>
-                            $49<span style={{ fontSize: '1.1rem', color: '#94a3b8', fontWeight: 500, letterSpacing: 'normal' }}>/month</span>
-                        </div>
-                        <p style={{ color: '#94a3b8', marginBottom: '2.5rem', fontSize: '1rem' }}>For serious coaches ready to scale.</p>
+    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+        <div style={{
+            background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
+            border: '1px solid rgba(99, 102, 241, 0.4)',
+            borderRadius: '24px',
+            padding: '3rem',
+            position: 'relative',
+            boxShadow: '0 0 50px rgba(79, 70, 229, 0.2)'
+        }}>
+            <div style={{ position: 'absolute', top: '-15px', left: '50%', transform: 'translateX(-50%)', backgroundColor: '#4f46e5', color: 'white', padding: '0.35rem 1.2rem', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.5px' }}>
+                MOST POPULAR
+            </div>
+            <h3 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem', color: '#fff' }}>CoachFlow Pro</h3>
+            <div style={{ fontSize: '3.5rem', fontWeight: 900, marginBottom: '0.5rem', color: '#fff', letterSpacing: '-1px' }}>
+                $49<span style={{ fontSize: '1.1rem', color: '#94a3b8', fontWeight: 500, letterSpacing: 'normal' }}>/month</span>
+            </div>
+            <p style={{ color: '#94a3b8', marginBottom: '2.5rem', fontSize: '1rem' }}>For serious coaches ready to scale.</p>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '3rem' }}>
-                            {[
-                                'Real-time Analytics Dashboard',
-                                'Unlimited Leads & Frameworks',
-                                'Automatic Email Notifications',
-                                'Priority 24/7 Support',
-                                'Weekly Feature Updates'
-                            ].map((feature, i) => (
-                                <div key={i} style={{ display: 'flex', gap: '1rem', alignItems: 'center', color: '#e2e8f0', fontSize: '1.05rem' }}>
-                                    <CheckCircle size={20} color="#818cf8" /> {feature}
-                                </div>
-                            ))}
-                        </div>
-
-                        <a href="#join" style={{ display: 'block', textAlign: 'center', padding: '1.25rem', backgroundColor: '#4f46e5', color: 'white', borderRadius: '14px', fontWeight: 700, textDecoration: 'none', transition: 'transform 0.2s, background 0.2s', fontSize: '1.1rem' }} onMouseOver={(e) => e.target.style.transform = 'scale(1.02)'} onMouseOut={(e) => e.target.style.transform = 'scale(1)'}>
-                            Get Started Now
-                        </a>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '3rem' }}>
+                {[
+                    'Real-time Analytics Dashboard',
+                    'Unlimited Leads & Frameworks',
+                    'Automatic Email Notifications',
+                    'Priority 24/7 Support',
+                    'Weekly Feature Updates'
+                ].map((feature, i) => (
+                    <div key={i} style={{ display: 'flex', gap: '1rem', alignItems: 'center', color: '#e2e8f0', fontSize: '1.05rem' }}>
+                        <CheckCircle size={20} color="#818cf8" /> {feature}
                     </div>
-                </div>
-            </section>
+                ))}
+            </div>
 
-            {/* Payment & Order Form */}
+            <a href="#join" style={{ display: 'block', textAlign: 'center', padding: '1.25rem', backgroundColor: '#4f46e5', color: 'white', borderRadius: '14px', fontWeight: 700, textDecoration: 'none', transition: 'transform 0.2s, background 0.2s', fontSize: '1.1rem' }} onMouseOver={(e) => e.target.style.transform = 'scale(1.02)'} onMouseOut={(e) => e.target.style.transform = 'scale(1)'}>
+                Get Started Now
+            </a>
+        </div>
+    </div>
+</section>
+
+{/* Payment & Order Form */ }
             <section id="join" style={{ position: 'relative', zIndex: 10, padding: '6rem 1rem', maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) minmax(300px, 1.2fr)', gap: '5rem', alignItems: 'start' }}>
 
                 {/* Instructions */}

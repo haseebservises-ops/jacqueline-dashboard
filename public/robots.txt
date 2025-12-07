@@ -5,4 +5,4 @@ Disallow: /admin
 Disallow: /settings
 Disallow: /reset-password
 
-Sitemap: https://coachflowos.com/sitemap.xml
+Sitemap: https://coachflowos.vercel.app/sitemap.xml
