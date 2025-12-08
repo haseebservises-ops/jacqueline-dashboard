@@ -4,8 +4,8 @@
  * The system will randomly pick one of these accounts for every email.
  * If one fails (e.g. quota limit reached), it will automatically try another one.
  * 
- * Total Accounts: 14
- * Estimated Monthly Capacity: 2,800 emails (at 200/account)
+ * Total Accounts: 15
+ * Estimated Monthly Capacity: 3,000 emails (at 200/account)
  */
 
 export const EMAIL_POOL = [
@@ -81,5 +81,12 @@ export const EMAIL_POOL = [
         serviceId: 'service_zrg5maj',
         templateId: 'template_e6ie8hc',
         publicKey: 'BhskVSZ4xO_ahMky7' // umair.razzaq381
+    },
+
+    // --- BATCH 3 (Latest) ---
+    {
+        serviceId: 'service_jc6elyn',
+        templateId: 'template_joo7919',
+        publicKey: 'vFrYGTfCsXXlFGBlD' // mirzakhurramsaeed8
     },
 ];
